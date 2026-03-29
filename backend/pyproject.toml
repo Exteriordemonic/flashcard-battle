@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = [
+    "migrations",
+    "manage.py",
+    "config/asgi.py",
+    "config/wsgi.py",
+    "config/urls.py",
+    "config/settings.py",
+]
+
+[tool.ruff.lint]
+extend-ignore = ["E203"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+multiline-quotes = "double"
+docstring-quotes = "double"

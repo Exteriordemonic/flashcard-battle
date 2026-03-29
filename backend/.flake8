@@ -1,0 +1,13 @@
+[flake8]
+exclude = .git,venv,__pycache__,migrations
+inline-quotes = double
+multiline-quotes = double
+docstring-quotes = double
+extend-exclude =
+    manage.py,
+    config/asgi.py,
+    config/wsgi.py,
+    config/urls.py,
+    config/settings.py
+max-line-length = 88
+extend-ignore = E203
