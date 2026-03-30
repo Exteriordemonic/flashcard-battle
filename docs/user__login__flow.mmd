@@ -1,0 +1,27 @@
+```mermaid
+
+graph TD
+  A[User] --> B[Frontend - Next.js]
+
+  B --> C[POST /api/login]
+
+  C --> D[Validate input]
+
+  D --> E[Authenticate user]
+
+  E --> |Success| F[Generate JWT\nRefreshToken.for_user]
+  E --> |Fail| G[Return error]
+
+  F --> H[Return access + refresh token]
+
+  H --> I[Frontend stores token]
+
+  I --> J[Subsequent request] 
+
+  J --> K[Authorization: Bearer <token>]
+
+  K --> L[Backend verifies token]
+
+  L --> |Success| M[Return 200 User authenticated]
+
+  L --> |Fail| U[Return 401 Unauthorized]
