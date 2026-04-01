@@ -3,35 +3,40 @@
 import axios, { isAxiosError } from "axios";
 import { useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "next/navigation";
 
 function getLoginErrorMessage(data: any): string {
-  return (data && data.detail) ? data.detail : "Login failed. Please try again.";
+  return data && data.detail ? data.detail : "Login failed. Please try again.";
 }
 
 export default function LoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const setTokens = useAuthStore((s) => s.setTokens);
 
+  const success = (response: import("axios").AxiosResponse<{ access: string; refresh: string }>) => {
+    setTokens(response.data.access, response.data.refresh);
+    router.push("/dashboard");
+  }
+
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
-    const formData = new FormData();
-    formData.append("username", username);
-    formData.append("password", password);
-
     try {
       const response = await axios.post<{
         access: string;
         refresh: string;
-      }>(`${process.env.NEXT_PUBLIC_API_URL}/token/`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setTokens(response.data.access, response.data.refresh);
+      }>(
+        `${process.env.NEXT_PUBLIC_API_URL}/token/`,
+        { username, password },
+        { headers: { "Content-Type": "application/json" } },
+      );
+      success(response)
     } catch (err) {
       if (isAxiosError(err) && err.response?.data !== undefined) {
         setError(getLoginErrorMessage(err.response.data));
@@ -61,7 +66,10 @@ export default function LoginPage() {
           </p>
         ) : null}
         <div className="flex flex-col gap-1">
-          <label htmlFor="username" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label
+            htmlFor="username"
+            className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+          >
             Username
           </label>
           <input
@@ -79,7 +87,10 @@ export default function LoginPage() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+          >
             Password
           </label>
           <input

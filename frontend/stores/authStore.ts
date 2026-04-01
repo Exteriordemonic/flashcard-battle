@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useRouter } from "next/navigation";
 
 type AuthState = {
   accessToken: string | null;
@@ -44,7 +45,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       refreshToken: null,
       isAuthenticated: false,
       user: null,
-    });
+    });    
   },
 
   setUser: (user) => {
