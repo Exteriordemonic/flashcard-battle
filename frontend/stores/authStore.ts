@@ -1,43 +1,58 @@
 import { create } from "zustand";
-import { useRouter } from "next/navigation";
+
+const ACCESS_KEY = "auth_access_token";
+const REFRESH_KEY = "auth_refresh_token";
 
 type AuthState = {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-  user: any | null;
+  hasHydrated: boolean;
+  user: unknown | null;
 
+  hydrateFromStorage: () => void;
   setTokens: (access: string, refresh: string) => void;
   logout: () => void;
-  setUser: (user: any) => void;
+  setUser: (user: unknown) => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  // ===== STATE =====
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
+  hasHydrated: false,
   user: null,
 
-  // ===== ACTIONS =====
+  hydrateFromStorage: () => {
+    if (typeof window === "undefined") return;
+    const access = localStorage.getItem(ACCESS_KEY);
+    const refresh = localStorage.getItem(REFRESH_KEY);
+    set({
+      accessToken: access,
+      refreshToken: refresh,
+      isAuthenticated: Boolean(access && refresh),
+      hasHydrated: true,
+    });
+  },
 
   setTokens: (access, refresh) => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("auth_access_token", access);
-      localStorage.setItem("auth_refresh_token", refresh);
+      localStorage.setItem(ACCESS_KEY, access);
+      localStorage.setItem(REFRESH_KEY, refresh);
     }
 
     set({
       accessToken: access,
       refreshToken: refresh,
       isAuthenticated: true,
+      hasHydrated: true,
     });
   },
 
   logout: () => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("auth_access_token");
-      localStorage.removeItem("auth_refresh_token");
+      localStorage.removeItem(ACCESS_KEY);
+      localStorage.removeItem(REFRESH_KEY);
     }
 
     set({
@@ -45,12 +60,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       refreshToken: null,
       isAuthenticated: false,
       user: null,
-    });    
+      hasHydrated: true,
+    });
   },
 
   setUser: (user) => {
-    set({
-      user,
-    });
+    set({ user });
   },
 }));

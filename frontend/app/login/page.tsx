@@ -1,12 +1,19 @@
 "use client";
 
 import axios, { isAxiosError } from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
 
-function getLoginErrorMessage(data: any): string {
-  return data && data.detail ? data.detail : "Login failed. Please try again.";
+function getLoginErrorMessage(data: unknown): string {
+  if (data && typeof data === "object" && "detail" in data) {
+    const detail = (data as { detail: unknown }).detail;
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail) && detail.length > 0 && typeof detail[0] === "string") {
+      return detail[0];
+    }
+  }
+  return "Login failed. Please try again.";
 }
 
 export default function LoginPage() {
@@ -16,11 +23,25 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const setTokens = useAuthStore((s) => s.setTokens);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const hasHydrated = useAuthStore((s) => s.hasHydrated);
 
-  const success = (response: import("axios").AxiosResponse<{ access: string; refresh: string }>) => {
+  useEffect(() => {
+    if (!hasHydrated) return;
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [hasHydrated, isAuthenticated, router]);
+
+  const success = (
+    response: import("axios").AxiosResponse<{
+      access: string;
+      refresh: string;
+    }>,
+  ) => {
     setTokens(response.data.access, response.data.refresh);
     router.push("/dashboard");
-  }
+  };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,7 +57,7 @@ export default function LoginPage() {
         { username, password },
         { headers: { "Content-Type": "application/json" } },
       );
-      success(response)
+      success(response);
     } catch (err) {
       if (isAxiosError(err) && err.response?.data !== undefined) {
         setError(getLoginErrorMessage(err.response.data));
