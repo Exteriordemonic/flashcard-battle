@@ -1,70 +1,54 @@
 import { create } from "zustand";
 
-const ACCESS_KEY = "auth_access_token";
-const REFRESH_KEY = "auth_refresh_token";
-
 type AuthState = {
-  accessToken: string | null;
-  refreshToken: string | null;
+  user: any | null;
   isAuthenticated: boolean;
-  hasHydrated: boolean;
-  user: unknown | null;
+  isLoading: boolean;
 
-  hydrateFromStorage: () => void;
-  setTokens: (access: string, refresh: string) => void;
-  logout: () => void;
-  setUser: (user: unknown) => void;
+  setUser: (user: any | null) => void;
+  setAuthenticated: (value: boolean) => void;
+  logout: () => Promise<void>;
+  checkAuth: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
-  refreshToken: null,
-  isAuthenticated: false,
-  hasHydrated: false,
   user: null,
+  isAuthenticated: false,
+  isLoading: true,
 
-  hydrateFromStorage: () => {
-    if (typeof window === "undefined") return;
-    const access = localStorage.getItem(ACCESS_KEY);
-    const refresh = localStorage.getItem(REFRESH_KEY);
-    set({
-      accessToken: access,
-      refreshToken: refresh,
-      isAuthenticated: Boolean(access && refresh),
-      hasHydrated: true,
-    });
-  },
+  setUser: (user) => set({ user }),
+  setAuthenticated: (value) => set({ isAuthenticated: value }),
 
-  setTokens: (access, refresh) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(ACCESS_KEY, access);
-      localStorage.setItem(REFRESH_KEY, refresh);
-    }
+  logout: async () => {
+    await fetch("/api/logout", { method: "POST" });
 
     set({
-      accessToken: access,
-      refreshToken: refresh,
-      isAuthenticated: true,
-      hasHydrated: true,
-    });
-  },
-
-  logout: () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(ACCESS_KEY);
-      localStorage.removeItem(REFRESH_KEY);
-    }
-
-    set({
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
       user: null,
-      hasHydrated: true,
+      isAuthenticated: false,
     });
   },
 
-  setUser: (user) => {
-    set({ user });
+  checkAuth: async () => {
+    try {
+      const res = await fetch("/api/me", {
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error();
+
+      const user = await res.json();
+
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch {
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
   },
 }));

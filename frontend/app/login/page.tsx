@@ -23,15 +23,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const setTokens = useAuthStore((s) => s.setTokens);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const hasHydrated = useAuthStore((s) => s.hasHydrated);
-
-  useEffect(() => {
-    if (!hasHydrated) return;
-    if (isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [hasHydrated, isAuthenticated, router]);
 
   const success = (
     response: import("axios").AxiosResponse<{
