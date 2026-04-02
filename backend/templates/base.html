@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}NEURAL//DUEL{% endblock %}</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              bg:      '#070A0F',
+              panel:   '#0D1117',
+              panel2:  '#111820',
+              border:  '#1C2A3A',
+              dim:     '#3A5060',
+              text:    '#C8D8E8',
+              yellow:  '#FFE600',
+              cyan:    '#00F5FF',
+              red:     '#FF003C',
+              green:   '#00FF9F',
+            }
+          },
+          fontFamily: {
+            mono:    ['"Share Tech Mono"', 'monospace'],
+            display: ['Orbitron', 'monospace'],
+            body:    ['Rajdhani', 'sans-serif'],
+          },
+          animation: {
+            'glitch':    'glitch 6s infinite',
+            'scanline':  'scanline 8s linear infinite',
+            'flicker':   'flicker 4s infinite',
+            'pip-pulse': 'pipPulse 2s ease-in-out infinite',
+          },
+          keyframes: {
+            glitch: {
+              '0%,94%,100%': { textShadow: '0 0 20px rgba(255,230,0,0.5)' },
+              '95%': { transform: 'skewX(-6deg) translateX(-4px)', textShadow: '4px 0 #FF003C, -4px 0 #00F5FF' },
+              '97%': { transform: 'skewX(3deg) translateX(3px)', textShadow: '-3px 0 #FF003C, 3px 0 #00F5FF' },
+            },
+            scanline: {
+              '0%':   { backgroundPosition: '0 0' },
+              '100%': { backgroundPosition: '0 100%' },
+            },
+            flicker: {
+              '0%,96%,100%': { opacity: '1' },
+              '97%': { opacity: '0.6' },
+              '98%': { opacity: '1' },
+              '99%': { opacity: '0.7' },
+            },
+            pipPulse: {
+              '0%,100%': { boxShadow: '0 0 4px currentColor' },
+              '50%':     { boxShadow: '0 0 12px currentColor, 0 0 24px currentColor' },
+            },
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Base ── */
+    body {
+      background-color: #070A0F;
+      font-family: 'Rajdhani', sans-serif;
+      color: #C8D8E8;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── CRT scan lines ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.12) 2px,
+        rgba(0,0,0,0.12) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── All content above overlays ── */
+    #app { position: relative; z-index: 2; }
+
+    /* ── Clip-path helpers ── */
+    .clip-corner-sm  { clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+    .clip-corner-md  { clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+    .clip-corner-tl  { clip-path: polygon(0 12px, 12px 0, 100% 0, 100% 100%, 0 100%); }
+    .clip-corner-tr  { clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); }
+    .clip-panel      { clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+
+    /* ── Glowing border top ── */
+    .glow-top-cyan::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00F5FF, transparent);
+      opacity: 0.6;
+    }
+    .glow-top-yellow::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #FFE600, transparent);
+      opacity: 0.6;
+    }
+    .glow-top-red::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #FF003C, transparent);
+      opacity: 0.6;
+    }
+
+    /* ── Navbar active link ── */
+    .nav-link {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3A5060;
+      transition: color 0.15s, text-shadow 0.15s;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1px;
+      background: #00F5FF;
+      transition: width 0.2s;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #00F5FF;
+      text-shadow: 0 0 10px rgba(0,245,255,0.5);
+    }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+    /* ── CTA buttons ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      background: rgba(255,230,0,0.1);
+      border: 1px solid #FFE600;
+      color: #FFE600;
+      cursor: pointer;
+      transition: all 0.15s;
+      clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: rgba(255,230,0,0.2);
+      box-shadow: 0 0 30px rgba(255,230,0,0.3), inset 0 0 20px rgba(255,230,0,0.05);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      padding: 14px 32px;
+      background: transparent;
+      border: 1px solid #1C2A3A;
+      color: #3A5060;
+      cursor: pointer;
+      transition: all 0.15s;
+      clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+      text-decoration: none;
+    }
+    .btn-secondary:hover {
+      border-color: #00F5FF;
+      color: #00F5FF;
+      box-shadow: 0 0 16px rgba(0,245,255,0.15);
+    }
+
+    /* ── Tag / badge ── */
+    .cyber-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,230,0,0.3);
+      background: rgba(255,230,0,0.05);
+      color: #FFE600;
+      padding: 3px 12px;
+      display: inline-block;
+    }
+    .cyber-tag-cyan {
+      border-color: rgba(0,245,255,0.3);
+      background: rgba(0,245,255,0.05);
+      color: #00F5FF;
+    }
+    .cyber-tag-red {
+      border-color: rgba(255,0,60,0.3);
+      background: rgba(255,0,60,0.05);
+      color: #FF003C;
+    }
+
+    /* ── Messages (Django) ── */
+    .message-success { border-color: #00FF9F; color: #00FF9F; background: rgba(0,255,159,0.05); }
+    .message-error   { border-color: #FF003C; color: #FF003C; background: rgba(255,0,60,0.05);  }
+    .message-info    { border-color: #00F5FF; color: #00F5FF; background: rgba(0,245,255,0.05); }
+    .message-warning { border-color: #FFE600; color: #FFE600; background: rgba(255,230,0,0.05); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #070A0F; }
+    ::-webkit-scrollbar-thumb { background: #1C2A3A; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00F5FF; }
+
+    /* ── Page load fade ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.5s ease forwards; }
+    .fade-up-1 { animation-delay: 0.05s; opacity: 0; }
+    .fade-up-2 { animation-delay: 0.15s; opacity: 0; }
+    .fade-up-3 { animation-delay: 0.25s; opacity: 0; }
+    .fade-up-4 { animation-delay: 0.35s; opacity: 0; }
+
+    {% block extra_styles %}{% endblock %}
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+<div id="app" class="flex flex-col min-h-screen">
+
+  {# ═══════════════ NAVBAR ═══════════════ #}
+  <nav class="relative border-b border-cyber-border bg-cyber-panel/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="glow-top-cyan relative"></div>
+    <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between gap-8">
+
+      {# Logo #}
+      <a href="#" class="flex items-center gap-3 flex-shrink-0">
+        <span class="font-display text-cyber-yellow text-base font-black tracking-widest animate-glitch">
+          NEURAL<span class="text-cyber-dim">//</span>DUEL
+        </span>
+      </a>
+
+      {# Center nav links #}
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#" class="nav-link">Home</a>
+        <a href="#" class="nav-link">Decks</a>
+        <a href="#" class="nav-link">Leaderboard</a>
+      </div>
+
+      {# Auth area #}
+      {% comment %} <div class="flex items-center gap-4 flex-shrink-0">
+        {% if user.is_authenticated %}
+          {# Streak badge #}
+          {% if user.profile.streak %}
+          <span class="hidden sm:inline cyber-tag cyber-tag-cyan text-[9px]">
+            ×{{ user.profile.streak }} STREAK
+          </span>
+          {% endif %}
+
+          {# HP pips — rendered from profile #}
+          <div class="hidden sm:flex items-center gap-1">
+            {% for i in hp_range %}
+              <div class="w-4 h-2 {% if i < user.profile.hp %}bg-cyber-cyan shadow-[0_0_6px_#00F5FF]{% else %}bg-cyber-panel2 border border-cyber-border{% endif %}"
+                   style="clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%)"></div>
+            {% endfor %}
+          </div>
+
+          {# Avatar / username dropdown #}
+          <div class="relative group">
+            <button class="flex items-center gap-2 font-mono text-xs text-cyber-dim hover:text-cyber-cyan transition-colors">
+              <span class="w-7 h-7 flex items-center justify-center border border-cyber-border bg-cyber-panel2 text-cyber-yellow font-display text-[10px]"
+                    style="clip-path: polygon(4px 0,100% 0,calc(100% - 4px) 100%, 0 100%)">
+                {{ user.username|first|upper }}
+              </span>
+              <span class="hidden sm:inline tracking-widest">{{ user.username|upper }}</span>
+              <svg class="w-3 h-3 transition-transform group-hover:rotate-180" viewBox="0 0 10 6" fill="none">
+                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+
+            {# Dropdown #}
+            <div class="absolute right-0 top-full mt-2 w-44 bg-cyber-panel border border-cyber-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50"
+                 style="clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)">
+              <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyber-cyan to-transparent opacity-50"></div>
+              <a href="#" class="flex items-center gap-3 px-4 py-3 font-mono text-[10px] tracking-widest text-cyber-dim hover:text-cyber-cyan hover:bg-cyber-panel2 transition-colors">
+                <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                PROFILE
+              </a>
+              <a href="#" class="flex items-center gap-3 px-4 py-3 font-mono text-[10px] tracking-widest text-cyber-dim hover:text-cyber-cyan hover:bg-cyber-panel2 transition-colors">
+                <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                SETTINGS
+              </a>
+              <div class="border-t border-cyber-border mx-3"></div>
+              <a href="#" class="flex items-center gap-3 px-4 py-3 font-mono text-[10px] tracking-widest text-cyber-dim hover:text-cyber-red hover:bg-cyber-panel2 transition-colors">
+                <svg class="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                DISCONNECT
+              </a>
+            </div>
+          </div>
+
+        {% else %}
+          <a href="#" class="nav-link">Login</a>
+          <a href="#" class="btn-primary text-[11px] px-5 py-2.5">
+            JACK IN
+          </a>
+        {% endif %}
+      </div> {% endcomment %}
+
+      {# Mobile menu toggle #}
+      <button id="mobile-toggle" class="md:hidden text-cyber-dim hover:text-cyber-cyan transition-colors p-1">
+        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </div>
+
+    {# Mobile menu #}
+    <div id="mobile-menu" class="hidden md:hidden border-t border-cyber-border bg-cyber-panel px-6 py-4 flex flex-col gap-4">
+      <a href="#" class="nav-link">Home</a>
+      <a href="#" class="nav-link">Decks</a>
+      <a href="#" class="nav-link">Leaderboard</a>
+      {% if user.is_authenticated %}
+        <a href="#" class="nav-link">Profile</a>
+        <a href="#" class="nav-link">Disconnect</a>
+      {% else %}
+        <a href="#" class="nav-link">Login</a>
+        <a href="#" class="btn-primary inline-block text-center mt-2">JACK IN</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  {# ═══════════════ MESSAGES ═══════════════ #}
+  {% if messages %}
+  <div class="relative z-40 max-w-6xl mx-auto w-full px-6 pt-4 space-y-2">
+    {% for message in messages %}
+    <div class="message-{{ message.tags }} border font-mono text-xs tracking-widest px-5 py-3 flex items-center justify-between"
+         style="clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)">
+      <span>// {{ message|upper }}</span>
+      <button onclick="this.parentElement.remove()" class="opacity-40 hover:opacity-100 transition-opacity ml-4">✕</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ═══════════════ MAIN CONTENT ═══════════════ #}
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  {# ═══════════════ FOOTER ═══════════════ #}
+  <footer class="relative border-t border-cyber-border bg-cyber-panel/60 mt-16">
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyber-yellow/30 to-transparent"></div>
+    <div class="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <span class="font-display text-cyber-yellow text-xs tracking-widest animate-flicker">NEURAL//DUEL</span>
+      <span class="font-mono text-[10px] text-cyber-dim tracking-widest">// COMBAT LEARNING PROTOCOL v2.0.77 //</span>
+      <span class="font-mono text-[10px] text-cyber-dim">{% now "Y" %} © ALL RIGHTS RESERVED</span>
+    </div>
+  </footer>
+
+</div>
+
+{# Mobile menu JS #}
+<script>
+  document.getElementById('mobile-toggle').addEventListener('click', function() {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  });
+</script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

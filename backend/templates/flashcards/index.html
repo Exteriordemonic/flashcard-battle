@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}NEURAL//DUEL — Combat Learning Protocol{% endblock %}
+
+{% block extra_styles %}
+
+/* ── Hero glitch text ── */
+@keyframes heroGlitch {
+  0%,93%,100% { clip-path: none; transform: none; }
+  94% { clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); transform: translateX(-6px); filter: hue-rotate(90deg); }
+  96% { clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); transform: translateX(4px); }
+  98% { clip-path: none; transform: skewX(-2deg); }
+}
+.hero-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: #FF003C;
+  animation: heroGlitch 7s infinite;
+  pointer-events: none;
+}
+
+/* ── Deck card hover ── */
+.deck-card {
+  background: #0D1117;
+  border: 1px solid #1C2A3A;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+.deck-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00F5FF, transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.deck-card:hover {
+  border-color: #00F5FF;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,245,255,0.1), 0 0 0 1px rgba(0,245,255,0.1);
+}
+.deck-card:hover::before { opacity: 0.8; }
+
+/* ── Stat block ── */
+.stat-block {
+  background: #0D1117;
+  border: 1px solid #1C2A3A;
+  position: relative;
+  overflow: hidden;
+  padding: 28px 24px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+}
+.stat-block .stat-accent {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: currentColor;
+  transition: width 0.4s ease;
+}
+.stat-block:hover .stat-accent { width: 100%; }
+
+/* ── Progress bar ── */
+.prog-bar {
+  height: 4px;
+  background: #111820;
+  border: 1px solid #1C2A3A;
+  overflow: hidden;
+  position: relative;
+}
+.prog-fill {
+  height: 100%;
+  transition: width 0.6s ease;
+  position: relative;
+}
+.prog-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 8px;
+  background: white;
+  opacity: 0.4;
+  filter: blur(2px);
+}
+
+/* ── Feature item ── */
+.feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px;
+  border: 1px solid #1C2A3A;
+  background: #0D1117;
+  transition: border-color 0.2s;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.feature-item:hover { border-color: rgba(255,230,0,0.3); }
+
+/* ── Animated corner brackets on hero ── */
+@keyframes bracketIn {
+  from { width: 0; height: 0; opacity: 0; }
+  to   { width: 24px; height: 24px; opacity: 1; }
+}
+.hero-bracket { animation: bracketIn 0.6s ease forwards; }
+
+{% endblock %}
+
+{% block content %}
+
+<section class="relative min-h-[85vh] flex flex-col items-center justify-center px-6 py-24 overflow-hidden">
+
+  {# Background decoration — diagonal line #}
+  <div class="absolute inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyber-cyan/10 to-transparent"></div>
+    <div class="absolute top-3/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyber-yellow/10 to-transparent"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,245,255,0.04) 0%, transparent 70%)"></div>
+    {# Decorative hex grid corner #}
+    <div class="absolute -bottom-20 -right-20 w-72 h-72 opacity-5"
+         style="background: repeating-conic-gradient(#00F5FF 0% 16.67%, transparent 0% 33.33%) 0 0 / 30px 52px"></div>
+  </div>
+
+  <div class="relative max-w-4xl mx-auto text-center">
+
+    {# Pre-title tag #}
+    <div class="fade-up fade-up-1 inline-block cyber-tag mb-8">// COMBAT LEARNING PROTOCOL ACTIVE //</div>
+
+    {# Main title #}
+    <div class="fade-up fade-up-2 relative inline-block mb-6">
+      <h1 class="hero-glitch relative font-display font-black text-cyber-yellow leading-none tracking-wider"
+          data-text="NEURAL//DUEL"
+          style="font-size: clamp(52px, 10vw, 100px); text-shadow: 0 0 40px rgba(255,230,0,0.4), 0 0 80px rgba(255,230,0,0.15);">
+        NEURAL<span class="text-cyber-dim/60">//</span>DUEL
+      </h1>
+      {# Corner brackets #}
+      <span class="hero-bracket absolute top-0 left-0 border-t-2 border-l-2 border-cyber-cyan opacity-70" style="animation-delay:.2s"></span>
+      <span class="hero-bracket absolute top-0 right-0 border-t-2 border-r-2 border-cyber-cyan opacity-70" style="animation-delay:.3s"></span>
+      <span class="hero-bracket absolute bottom-0 left-0 border-b-2 border-l-2 border-cyber-yellow opacity-70" style="animation-delay:.4s"></span>
+      <span class="hero-bracket absolute bottom-0 right-0 border-b-2 border-r-2 border-cyber-yellow opacity-70" style="animation-delay:.5s"></span>
+    </div>
+
+    {# Subtitle #}
+    <p class="fade-up fade-up-3 font-body text-cyber-text/70 text-lg sm:text-xl max-w-xl mx-auto mb-12 leading-relaxed tracking-wide">
+      Flashcard combat system. Defeat neural bosses.<br>
+      <span class="text-cyber-cyan font-mono text-sm">Build streaks. Stack damage. Level your mind.</span>
+    </p>
+
+    {# CTA Buttons #}
+    <div class="fade-up fade-up-4 flex flex-wrap items-center justify-center gap-4">
+      {% if user.is_authenticated %}
+        <a href="#" class="btn-primary">
+          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          ENTER COMBAT
+        </a>
+        <span class="btn-secondary">VIEW STATS</span>
+      {% else %}
+        <a href="#" class="btn-primary">
+          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 8L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          JACK IN
+        </a>
+        <a href="#" class="btn-secondary">LOGIN</a>
+      {% endif %}
+    </div>
+
+    {# Mini stats bar #}
+    <div class="fade-up fade-up-4 mt-16 flex flex-wrap items-center justify-center gap-8" style="animation-delay:.5s">
+      {% for stat in hero_stats %}
+      <div class="text-center">
+        <div class="font-display text-2xl font-black text-cyber-yellow" style="text-shadow: 0 0 16px rgba(255,230,0,0.4)">{{ stat.value }}</div>
+        <div class="font-mono text-[9px] tracking-widest text-cyber-dim mt-1">{{ stat.label|upper }}</div>
+      </div>
+      {% empty %}
+      <div class="text-center">
+        <div class="font-display text-2xl font-black text-cyber-yellow" style="text-shadow: 0 0 16px rgba(255,230,0,0.4)">1,024</div>
+        <div class="font-mono text-[9px] tracking-widest text-cyber-dim mt-1">TOTAL DUELS</div>
+      </div>
+      <div class="w-px h-8 bg-cyber-border"></div>
+      <div class="text-center">
+        <div class="font-display text-2xl font-black text-cyber-cyan" style="text-shadow: 0 0 16px rgba(0,245,255,0.4)">48</div>
+        <div class="font-mono text-[9px] tracking-widest text-cyber-dim mt-1">NEURAL DECKS</div>
+      </div>
+      <div class="w-px h-8 bg-cyber-border"></div>
+      <div class="text-center">
+        <div class="font-display text-2xl font-black text-cyber-green" style="text-shadow: 0 0 16px rgba(0,255,159,0.4)">77%</div>
+        <div class="font-mono text-[9px] tracking-widest text-cyber-dim mt-1">AVG ACCURACY</div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+{% if user.is_authenticated %}
+<section class="max-w-6xl mx-auto px-6 pb-16">
+  <div class="flex items-center gap-4 mb-8">
+    <div class="cyber-tag">// OPERATOR STATUS</div>
+    <div class="flex-1 h-px bg-gradient-to-r from-cyber-border to-transparent"></div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+    {# HP #}
+    <div class="stat-block">
+      <div class="stat-accent text-cyber-cyan"></div>
+      <div class="font-mono text-[9px] tracking-widest text-cyber-dim mb-3">// INTEGRITY</div>
+      <div class="flex gap-1.5 mb-2">
+        {% for i in hp_range %}
+          <div class="flex-1 h-2 {% if i < user.profile.hp %}bg-cyber-cyan shadow-[0_0_6px_#00F5FF] animate-pip-pulse{% else %}bg-cyber-panel2 border border-cyber-border{% endif %}"
+               style="clip-path: polygon(3px 0,100% 0,calc(100% - 3px) 100%,0 100%)"></div>
+        {% endfor %}
+      </div>
+      <div class="font-display text-2xl font-black text-cyber-cyan">{{ user.profile.hp }}<span class="text-cyber-dim text-sm">/5</span></div>
+    </div>
+
+    {# Streak #}
+    <div class="stat-block">
+      <div class="stat-accent text-cyber-yellow"></div>
+      <div class="font-mono text-[9px] tracking-widest text-cyber-dim mb-3">// STREAK</div>
+      <div class="font-display text-2xl font-black text-cyber-yellow" style="text-shadow: 0 0 16px rgba(255,230,0,0.5)">
+        {% if user.profile.streak %}×{{ user.profile.streak }}{% else %}—{% endif %}
+      </div>
+      <div class="font-mono text-[9px] text-cyber-dim mt-1 tracking-widest">COMBO CHAIN</div>
+    </div>
+
+    {# Decks completed #}
+    <div class="stat-block">
+      <div class="stat-accent text-cyber-green"></div>
+      <div class="font-mono text-[9px] tracking-widest text-cyber-dim mb-3">// BOSSES SLAIN</div>
+      <div class="font-display text-2xl font-black text-cyber-green">{{ user.profile.decks_completed|default:"0" }}</div>
+      <div class="font-mono text-[9px] text-cyber-dim mt-1 tracking-widest">DECKS CLEARED</div>
+    </div>
+
+    {# Accuracy #}
+    <div class="stat-block">
+      <div class="stat-accent text-cyber-red"></div>
+      <div class="font-mono text-[9px] tracking-widest text-cyber-dim mb-3">// ACCURACY</div>
+      <div class="font-display text-2xl font-black" style="color: #FF003C;">
+        {{ user.profile.accuracy|default:"—" }}{% if user.profile.accuracy %}<span class="text-cyber-dim text-sm">%</span>{% endif %}
+      </div>
+      <div class="prog-bar mt-3">
+        <div class="prog-fill" style="width:{{ user.profile.accuracy|default:0 }}%; background: #FF003C; box-shadow: 0 0 6px #FF003C;"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
+
+<section class="max-w-6xl mx-auto px-6 pb-20">
+
+  <div class="flex items-center justify-between gap-4 mb-8">
+    <div class="flex items-center gap-4">
+      <div class="cyber-tag">// NEURAL DECKS</div>
+      <div class="h-px w-24 bg-gradient-to-r from-cyber-border to-transparent"></div>
+    </div>
+    <a href="#" class="font-mono text-[10px] tracking-widest text-cyber-dim hover:text-cyber-cyan transition-colors flex items-center gap-2">
+      VIEW ALL
+      <svg class="w-3 h-3" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </a>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for deck in featured_decks %}
+    <a href="#" class="deck-card block p-6">
+      {# Top row #}
+      <div class="flex items-start justify-between mb-4">
+        <span class="cyber-tag cyber-tag-cyan text-[9px]">{{ deck.category|upper|default:"MISC" }}</span>
+        <span class="font-mono text-[9px] text-cyber-dim">{{ deck.cards.count }} CARDS</span>
+      </div>
+
+      {# Name #}
+      <h3 class="font-display font-bold text-cyber-text text-base tracking-wide mb-2 leading-tight">
+        {{ deck.name|upper }}
+      </h3>
+      <p class="font-body text-cyber-dim text-sm leading-relaxed mb-5">
+        {{ deck.description|truncatewords:14|default:"No description." }}
+      </p>
+
+      {# Progress bar (user progress if auth) #}
+      {% if user.is_authenticated and deck.user_progress %}
+      <div class="mb-3">
+        <div class="flex justify-between font-mono text-[9px] text-cyber-dim mb-1">
+          <span>PROGRESS</span>
+          <span>{{ deck.user_progress }}%</span>
+        </div>
+        <div class="prog-bar">
+          <div class="prog-fill" style="width:{{ deck.user_progress }}%; background: #00F5FF; box-shadow: 0 0 6px #00F5FF;"></div>
+        </div>
+      </div>
+      {% endif %}
+
+      {# Footer #}
+      <div class="flex items-center justify-between mt-auto pt-4 border-t border-cyber-border">
+        <div class="flex items-center gap-2">
+          {# Difficulty pips #}
+          {% for d in deck.difficulty_range %}
+            <div class="w-2 h-2 rounded-full {% if d <= deck.difficulty %}bg-cyber-yellow{% else %}bg-cyber-panel2 border border-cyber-border{% endif %}"></div>
+          {% empty %}
+            <div class="w-2 h-2 rounded-full bg-cyber-yellow"></div>
+            <div class="w-2 h-2 rounded-full bg-cyber-yellow"></div>
+            <div class="w-2 h-2 rounded-full bg-cyber-panel2 border border-cyber-border"></div>
+          {% endfor %}
+          <span class="font-mono text-[9px] text-cyber-dim ml-1">DIFF</span>
+        </div>
+        <span class="font-mono text-[9px] text-cyber-cyan tracking-widest">ENTER →</span>
+      </div>
+    </a>
+
+    {% empty %}
+    {# Placeholder cards when no decks yet #}
+    {% for i in "123" %}
+    <div class="deck-card p-6 opacity-40 cursor-default select-none">
+      <div class="flex items-start justify-between mb-4">
+        <span class="cyber-tag text-[9px]">LOADING</span>
+        <span class="font-mono text-[9px] text-cyber-dim">?? CARDS</span>
+      </div>
+      <div class="h-4 bg-cyber-border rounded mb-3 w-3/4"></div>
+      <div class="h-3 bg-cyber-border/50 rounded mb-2 w-full"></div>
+      <div class="h-3 bg-cyber-border/50 rounded w-2/3"></div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+
+</section>
+
+
+<section class="border-t border-cyber-border bg-cyber-panel/40 py-20">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="text-center mb-12">
+      <div class="cyber-tag mb-4">// PROTOCOL GUIDE</div>
+      <h2 class="font-display font-black text-cyber-text text-2xl sm:text-3xl tracking-widest">HOW IT WORKS</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="feature-item">
+        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center border border-cyber-yellow/40 bg-cyber-yellow/5 font-display text-cyber-yellow font-black text-sm"
+             style="clip-path: polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)">01</div>
+        <div>
+          <h3 class="font-display text-sm font-bold text-cyber-text tracking-widest mb-2">PICK A DECK</h3>
+          <p class="font-body text-cyber-dim text-sm leading-relaxed">Choose a Neural Boss — each deck is an enemy waiting to be defeated. The boss's HP = number of cards.</p>
+        </div>
+      </div>
+
+      <div class="feature-item">
+        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center border border-cyber-cyan/40 bg-cyber-cyan/5 font-display text-cyber-cyan font-black text-sm"
+             style="clip-path: polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)">02</div>
+        <div>
+          <h3 class="font-display text-sm font-bold text-cyber-text tracking-widest mb-2">ANSWER & DEAL DMG</h3>
+          <p class="font-body text-cyber-dim text-sm leading-relaxed">Correct answers deal damage to the boss. Build a streak to multiply your damage. Miss and you take a hit.</p>
+        </div>
+      </div>
+
+      <div class="feature-item">
+        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center border border-cyber-green/40 bg-cyber-green/5 font-display text-cyber-green font-black text-sm"
+             style="clip-path: polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)">03</div>
+        <div>
+          <h3 class="font-display text-sm font-bold text-cyber-text tracking-widest mb-2">WIN OR FLATLINE</h3>
+          <p class="font-body text-cyber-dim text-sm leading-relaxed">Drain the boss's HP before yours hits zero. Win to clear the deck, lose to try again. No mercy. No pause.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+{% if not user.is_authenticated %}
+<section class="max-w-6xl mx-auto px-6 py-20">
+  <div class="relative border border-cyber-yellow/30 bg-cyber-panel overflow-hidden p-10 sm:p-16 text-center"
+       style="clip-path: polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 32px 100%, 0 calc(100% - 32px))">
+
+    {# Glow corners #}
+    <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyber-yellow to-transparent opacity-40"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyber-yellow to-transparent opacity-20"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255,230,0,0.04) 0%, transparent 70%)"></div>
+
+    <div class="relative">
+      <div class="cyber-tag mb-6">// FREE ACCESS</div>
+      <h2 class="font-display font-black text-cyber-yellow text-3xl sm:text-4xl tracking-widest mb-4"
+          style="text-shadow: 0 0 30px rgba(255,230,0,0.4)">
+        READY TO JACK IN?
+      </h2>
+      <p class="font-body text-cyber-text/60 max-w-md mx-auto mb-10 text-base leading-relaxed">
+        Create your operator profile and start destroying bosses. Free forever. No excuses.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center">
+        <a href="#" class="btn-primary">CREATE OPERATOR</a>
+        <a href="#" class="btn-secondary">ALREADY JACKED IN</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

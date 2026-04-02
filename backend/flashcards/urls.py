@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers, serializers, viewsets
-
+from flashcards.views import index
 from flashcards.models import Flashcard
 
 
@@ -20,5 +20,6 @@ router.register(r"flashcards", FlashcardViewSet)
 
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path("", index, name="index"),
+    path("api/", include(router.urls)),
 ]
